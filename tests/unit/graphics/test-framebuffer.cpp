@@ -10,11 +10,11 @@
 
 #include <chrono>
 #include <doctest.h>
+#include <filesystem>
 #include <graphics/Framebuffer.h>
 #include <graphics/primitives/Bitmap.h>
-#include <thread>
-#include <filesystem>
 #include <posix/FileSystem.h>
+#include <thread>
 #include <utils/StopWatch.h>
 
 using namespace rsp::graphics;
@@ -207,6 +207,23 @@ TEST_CASE("Framebuffer Drawing Primitives")
             CHECK(testImgMap.GetPixels().size() == (width * height));
 
             fb.SwapBuffer(BufferedCanvas::SwapOperations::Clear);
+            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+            SUBCASE("Draw section of image")
+            {
+                // Arrange
+                Point drawingLocation(topLeftImgCorner.GetX(), topLeftImgCorner.GetY() + height);
+                int sectionHeight = height / 2;
+                int sectionWidth = width / 2;
+                Point sectionPoint(sectionHeight / 4, sectionWidth / 4);
+                Bitmap imgSection = testImgMap.GetSection(sectionPoint, sectionHeight, sectionWidth);
+
+                // Act
+                fb.DrawImage(drawingLocation, imgSection);
+
+                // Assert
+                fb.SwapBuffer(BufferedCanvas::SwapOperations::Clear);
+                std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+            }
         }
         SUBCASE("Draw edited image file")
         {
@@ -302,7 +319,7 @@ TEST_CASE("Framebuffer Drawing Primitives")
 
     SUBCASE("Draw text")
     {
-        const char* cFontFile = "fonts/Exo2-VariableFont_wght.ttf";
+        const char *cFontFile = "fonts/Exo2-VariableFont_wght.ttf";
         Font::RegisterFont(cFontFile);
         Rect r(100, 200, 280, 200);
 
@@ -344,16 +361,17 @@ TEST_CASE("Framebuffer Drawing Primitives")
         fb.SwapBuffer(BufferedCanvas::SwapOperations::Clear);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-        const Color rainbow[] = { Color::White, Color::Red, Color::Yellow, Color::Green, Color::Aqua, Color::Lime, Color::Blue, Color::Silver };
+        const Color rainbow[] = {Color::White, Color::Red, Color::Yellow, Color::Green, Color::Aqua, Color::Lime, Color::Blue, Color::Silver};
 
         text.SetScaleToFit(true).SetLineSpacing(50);
-//        Rect screen(0, 0, 480, 800);
+        //        Rect screen(0, 0, 480, 800);
         rsp::utils::StopWatch sw;
-        for (int i = 0 ; i < 1000 ; i++) {
-//            fb.DrawRectangle(screen, rainbow[i & 0x07], true);
+        for (int i = 0; i < 1000; i++) {
+            //            fb.DrawRectangle(screen, rainbow[i & 0x07], true);
             int fps = (1000 * i) / (sw.Elapsed<std::chrono::milliseconds>() + 1);
             std::stringstream ss;
-            ss << "FPS:\n" << fps;
+            ss << "FPS:\n"
+               << fps;
             text.SetValue(ss.str());
             fb.DrawText(text.Reload(), rainbow[(i + 3) & 0x07]);
             text.SetScaleToFit(false); // Only scale first time to speed it up
@@ -367,9 +385,9 @@ TEST_CASE("Framebuffer Drawing Primitives")
 
     SUBCASE("Text Alignment")
     {
-        const char* cFontFile = "fonts/Exo2-VariableFont_wght.ttf";
+        const char *cFontFile = "fonts/Exo2-VariableFont_wght.ttf";
         Font::RegisterFont(cFontFile);
-//        Rect r(10, 10, 60, 80);
+        //        Rect r(10, 10, 60, 80);
         Rect r(10, 10, 460, 780);
 
         fb.DrawRectangle(r, Color::White);
@@ -379,11 +397,11 @@ TEST_CASE("Framebuffer Drawing Primitives")
         fb.SwapBuffer(BufferedCanvas::SwapOperations::Clear);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-        const Text::VAlign cVertical[] = { Text::VAlign::Top, Text::VAlign::Center, Text::VAlign::Bottom };
-        const Text::HAlign cHorizontal[] = { Text::HAlign::Left, Text::HAlign::Center, Text::HAlign::Right };
+        const Text::VAlign cVertical[] = {Text::VAlign::Top, Text::VAlign::Center, Text::VAlign::Bottom};
+        const Text::HAlign cHorizontal[] = {Text::HAlign::Left, Text::HAlign::Center, Text::HAlign::Right};
 
-        for (int h = 0 ; h < 3 ; h++) {
-            for (int v = 0 ; v < 3 ; v++) {
+        for (int h = 0; h < 3; h++) {
+            for (int v = 0; v < 3; v++) {
                 fb.DrawRectangle(r, Color::White);
                 fb.DrawText(text.SetVAlignment(cVertical[v]).SetHAlignment(cHorizontal[h]).Reload());
                 fb.SwapBuffer(BufferedCanvas::SwapOperations::Clear);
@@ -426,10 +444,11 @@ TEST_CASE("Framebuffer Drawing Primitives")
         fb.SwapBuffer();
     }
 
-    SUBCASE("Draw Fullscreen") {
+    SUBCASE("Draw Fullscreen")
+    {
         std::string testImage = "testImages/Asset2WithAlpha.bmp";
         Bitmap testImgMap(testImage);
-        fb.DrawImage(Point(0,0), testImgMap);
+        fb.DrawImage(Point(0, 0), testImgMap);
         fb.SwapBuffer(BufferedCanvas::SwapOperations::Clear);
     }
 }

@@ -68,6 +68,13 @@ class Bitmap : public Canvas
         mImagePixels[location] = aColor;
     }
 
+    /**
+     * Get a section of the current Bitmap.
+     *
+     * \return Bitmap as a copy of a section of this bitmap
+     */
+    Bitmap GetSection(const Point &aPoint, int aHeight, int aWidth);
+
     uint32_t GetPixel(const Point &aPoint, const bool aFront = false) const;
 
     /**
@@ -102,7 +109,7 @@ class Bitmap : public Canvas
 
   protected:
     std::shared_ptr<ImgLoader> GetRasterLoader(const std::string aFileExtension);
-    std::vector<uint32_t> mImagePixels{ }; // Pointer?
+    std::vector<uint32_t> mImagePixels{}; // Pointer?
 };
 
 } // namespace rsp::graphics

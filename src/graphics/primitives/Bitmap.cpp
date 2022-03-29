@@ -40,6 +40,7 @@ Bitmap::Bitmap(std::string aImgName)
 Bitmap::Bitmap(const uint32_t *apPixels, int aHeight, int aWidth, int aBytesPerPixel)
     : Canvas(aHeight, aWidth, aBytesPerPixel), mImagePixels(static_cast<long unsigned int>(aWidth * aHeight))
 {
+    std::cout << "Bitmap Constructor from uint32 pointer" << std::endl;
     for (int y = 0; y < mHeight; y++) {
         for (int x = 0; x < mWidth; x++) {
             mImagePixels[static_cast<long unsigned int>(x + (y * mWidth))] = *apPixels++;
@@ -50,6 +51,18 @@ Bitmap::Bitmap(const uint32_t *apPixels, int aHeight, int aWidth, int aBytesPerP
 Bitmap::Bitmap(int aHeight, int aWidth, int aBytesPerPixel)
     : Canvas(aHeight, aWidth, aBytesPerPixel), mImagePixels(static_cast<long unsigned int>(aWidth * aHeight))
 {
+}
+
+Bitmap Bitmap::GetSection(const Point &aPoint, int aHeight, int aWidth)
+{
+    Bitmap map(aHeight, aWidth, mBytesPerPixel);
+
+    for (int y = 0; y < aHeight; y++) {
+        for (int x = 0; x < aWidth; x++) {
+            map.mImagePixels[static_cast<long unsigned int>(x + (y * aWidth))] = mImagePixels[static_cast<long unsigned int>((mWidth * (aPoint.mY + y)) + (aPoint.mX + x))];
+        }
+    }
+    return map;
 }
 
 uint32_t Bitmap::GetPixel(const Point &aPoint, const bool aFront) const
@@ -70,3 +83,8 @@ std::shared_ptr<ImgLoader> Bitmap::GetRasterLoader(const std::string aFileType)
     }
 }
 } // namespace rsp::graphics
+
+// std::cout << "Instantiating bitmap" << std::endl;
+// Bitmap map(aHeight, aWidth, mBytesPerPixel);
+//  Make pointer to location in mPixels OR Make complete new array of pixels?
+//  Whatever the constructor will eat

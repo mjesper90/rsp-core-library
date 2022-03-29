@@ -26,26 +26,42 @@ TEST_CASE("Bitmap file loading")
         uint32_t width = 259;
 
         // Act
-        CHECK_NOTHROW(
-            Bitmap bitmap(filepath);
-            Color col(bitmap.GetPixels()[0]);
+        // CHECK_NOTHROW(
+        Bitmap bitmap(filepath);
+        Color col(bitmap.GetPixels()[0]);
+
+        // Assert
+        CHECK(bitmap.GetHeight() == height);
+        CHECK(bitmap.GetWidth() == width);
+        CHECK(bitmap.GetPixels().size() == (width * height));
+        CHECK(col == bitmap.GetPixels()[0]);
+        SUBCASE("Get section of loaded map")
+        {
+            // Arrange
+            Point sectionPoint(100, 100);
+            int sectionHeight = 50;
+            int sectionWidth = 50;
+
+            // Act
+            Bitmap section = bitmap.GetSection(sectionPoint, sectionHeight, sectionWidth);
 
             // Assert
-            CHECK(bitmap.GetHeight() == height);
-            CHECK(bitmap.GetWidth() == width);
-            CHECK(bitmap.GetPixels().size() == (width * height));
-            CHECK(col == bitmap.GetPixels()[0]);
-            SUBCASE("Drawing on loaded Img") {
-                // Arrange
-                Color col(rand() % 200 + 56, rand() % 200 + 56, rand() % 200 + 56, 0xff);
-                Point pt(100, 100);
+            CHECK(section.GetHeight() == sectionHeight);
+            CHECK(section.GetWidth() == sectionWidth);
+            CHECK(section.GetPixels().size() == (sectionHeight * sectionWidth));
+        }
+        SUBCASE("Drawing on loaded Img")
+        {
+            // Arrange
+            Color col(rand() % 200 + 56, rand() % 200 + 56, rand() % 200 + 56, 0xff);
+            Point pt(100, 100);
 
-                // Act
-                bitmap.SetPixel(pt, col);
+            // Act
+            bitmap.SetPixel(pt, col);
 
-                // Assert
-                CHECK(bitmap.GetPixel(pt) == col);
-            });
+            // Assert
+            CHECK(bitmap.GetPixel(pt) == col);
+        } //);
     }
     SUBCASE("Loading another Bmp file")
     {
