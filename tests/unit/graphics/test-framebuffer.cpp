@@ -207,7 +207,6 @@ TEST_CASE("Framebuffer Drawing Primitives")
             CHECK(testImgMap.GetPixels().size() == (width * height));
 
             fb.SwapBuffer(BufferedCanvas::SwapOperations::Clear);
-            std::this_thread::sleep_for(std::chrono::milliseconds(5000));
             SUBCASE("Draw section of image")
             {
                 // Arrange
@@ -221,8 +220,10 @@ TEST_CASE("Framebuffer Drawing Primitives")
                 fb.DrawImage(drawingLocation, imgSection);
 
                 // Assert
+                CHECK(imgSection.GetHeight() == sectionHeight);
+                CHECK(imgSection.GetWidth() == sectionWidth);
+                CHECK(imgSection.GetPixels().size() == (sectionWidth * sectionHeight));
                 fb.SwapBuffer(BufferedCanvas::SwapOperations::Clear);
-                std::this_thread::sleep_for(std::chrono::milliseconds(5000));
             }
         }
         SUBCASE("Draw edited image file")
