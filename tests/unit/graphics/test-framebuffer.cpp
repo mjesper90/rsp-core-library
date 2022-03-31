@@ -179,7 +179,7 @@ TEST_CASE("Framebuffer Drawing Primitives")
     {
         // Arrange
         Point topLeftImgCorner(100, 200);
-        std::string testImage = "testImages/testImageCross.bmp";
+        std::string testImage = "testFiles/testImageCross.bmp";
 
         // Act
         Bitmap testImgMap(testImage);
@@ -270,7 +270,7 @@ TEST_CASE("Framebuffer Drawing Primitives")
         // Arrange
         Point topLeft(0, 0);
         Point randomPoint(rand() % fb.GetWidth(), rand() % fb.GetHeight());
-        std::string largeImg = "testImages/largeTestImg.bmp";
+        std::string largeImg = "testFiles/largeTestImg.bmp";
         Bitmap largeImgMap(largeImg);
         // Make sure screen is empty
         fb.SwapBuffer(BufferedCanvas::SwapOperations::Clear);
@@ -300,7 +300,7 @@ TEST_CASE("Framebuffer Drawing Primitives")
     {
         // Arrange
         Point topLeftPoint(100, 200);
-        Bitmap imgSimple("testImages/testImage.bmp");
+        Bitmap imgSimple("testFiles/testImage.bmp");
         int iterations = 100;
 
         // Act
@@ -447,7 +447,7 @@ TEST_CASE("Framebuffer Drawing Primitives")
 
     SUBCASE("Draw Fullscreen")
     {
-        std::string testImage = "testImages/Asset2WithAlpha.bmp";
+        std::string testImage = "testFiles/Asset2WithAlpha.bmp";
         Bitmap testImgMap(testImage);
         fb.DrawImage(Point(0, 0), testImgMap);
         fb.SwapBuffer(BufferedCanvas::SwapOperations::Clear);

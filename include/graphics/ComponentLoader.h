@@ -12,19 +12,24 @@
 
 #include "graphics/primitives/Bitmap.h"
 #include <map>
+#include <sstream>
 
 namespace rsp::graphics
 {
 class ComponentLoader
 {
   public:
-    ComponentLoader(std::string aPathToSource);
+    ComponentLoader(std::string aBitmapSource, std::string aSectioningInfo);
     ~ComponentLoader();
 
-    Bitmap &GetComponent(std::string aName);
+    // Bitmap &GetComponent(std::string aName);
 
   protected:
+    std::string mLine = "";
+    std::string mCell = "";
+
     std::unordered_map<std::string, Bitmap> mComponents{};
+    std::map<std::string, unsigned int> mColumnHeaders{};
 };
 
 } // namespace rsp::graphics

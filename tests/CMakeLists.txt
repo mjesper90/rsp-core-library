@@ -7,7 +7,7 @@ target_sources("rsp-core-lib-test" PRIVATE
     #unit/graphics/test-colour.cpp
 )
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/unit/graphics/testImages 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/unit/graphics/testFiles 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/../)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/unit/graphics/fonts 

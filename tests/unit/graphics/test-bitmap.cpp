@@ -21,7 +21,7 @@ TEST_CASE("Bitmap file loading")
     SUBCASE("Loading Bmp file")
     {
         // Arrange
-        std::string filepath = "testImages/testImage.bmp";
+        std::string filepath = "testFiles/testImage.bmp";
         uint32_t height = 194;
         uint32_t width = 259;
 
@@ -66,7 +66,7 @@ TEST_CASE("Bitmap file loading")
     SUBCASE("Loading another Bmp file")
     {
         // Arrange
-        std::string filepath = "testImages/Asset3.bmp";
+        std::string filepath = "testFiles/Asset3.bmp";
         uint32_t height = 800;
         uint32_t width = 480;
 
@@ -86,7 +86,7 @@ TEST_CASE("Bitmap file loading")
     SUBCASE("Loading Png file")
     {
         // Arrange
-        std::string filepath = "testImages/testImage.png";
+        std::string filepath = "testFiles/testImage.png";
 
         // Act / Assert
         CHECK_THROWS_WITH_AS(Bitmap bitmap(filepath), "Png file format is not supported",
@@ -95,7 +95,7 @@ TEST_CASE("Bitmap file loading")
     SUBCASE("Loading filetype not found")
     {
         // Arrange
-        std::string filepath = "testImages/testImage.txt";
+        std::string filepath = "testFiles/testImage.txt";
 
         // Act Assert
         CHECK_THROWS_WITH_AS(Bitmap bitmap(filepath), "Filetype loader not found: _Map_base::at",
