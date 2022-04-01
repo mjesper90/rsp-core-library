@@ -9,12 +9,22 @@
  */
 
 #include "graphics/ComponentLoader.h"
+#include "graphics/Framebuffer.h"
 #include <doctest.h>
+#include <posix/FileSystem.h>
 
 using namespace ::rsp::graphics;
 
 TEST_CASE("Component Loader Test")
 {
-    ComponentLoader loader("testFiles/Sprite sheet (GUI libary) V1.0.bmp",
+    ComponentLoader loader("testFiles/Test keybord - Sprite sheet.bmp",
                            "testFiles/GuiItemsPlacement.csv");
+
+    std::filesystem::path p = rsp::posix::FileSystem::GetCharacterDeviceByDriverName("vfb2", std::filesystem::path{"/dev/fb?"});
+    Framebuffer fb(p.empty() ? nullptr : p.string().c_str());
+
+    // Can we draw the bitmaps?
+    fb.DrawImage(Point(100, 100), loader.GetComponent("Keyboard_number"));
+    fb.SwapBuffer(BufferedCanvas::SwapOperations::Clear);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 }

@@ -22,7 +22,7 @@ class ComponentLoader
     ComponentLoader(std::string aBitmapSource, std::string aSectioningInfo);
     ~ComponentLoader();
 
-    // Bitmap &GetComponent(std::string aName);
+    Bitmap &GetComponent(std::string aName);
 
   protected:
     std::string mLine = "";

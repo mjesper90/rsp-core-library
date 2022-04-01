@@ -42,7 +42,9 @@ ComponentLoader::ComponentLoader(std::string aBitmapSource, std::string aSection
     // std::getchar();
 
     std::vector<std::string> lineCells;
-    while (std::getline(sectionFile, mLine)) {
+    while (sectionFile.peek() != EOF) {
+        lineCells.clear();
+        std::getline(sectionFile, mLine);
         std::cout << mLine << std::endl; // Debug
         std::stringstream lineStream(mLine);
         while (std::getline(lineStream, mCell, ',')) {
@@ -52,14 +54,23 @@ ComponentLoader::ComponentLoader(std::string aBitmapSource, std::string aSection
         /*for (const auto aCell : lineCells) {
             std::cout << aCell << std::endl;
         }*/
-        // End Debug
+        /*
+        std::cout << "Inserting Component: " << std::endl;
+        std::cout << "UnitName: " << lineCells[mColumnHeaders["UnitName"]] << std::endl;
+        std::cout << "SpriteX: " << lineCells[mColumnHeaders["SpriteX"]] << std::endl;
+        std::cout << "SpriteY: " << lineCells[mColumnHeaders["SpriteY"]] << std::endl;
+        std::cout << "SpriteHeight: " << lineCells[mColumnHeaders["SpriteHeight"]] << std::endl;
+        std::cout << "SpriteWidth: " << lineCells[mColumnHeaders["SpriteWidth"]] << std::endl;
+        */
+
         mComponents.insert(std::pair<std::string, Bitmap>(lineCells[mColumnHeaders["UnitName"]],
                                                           source.GetSection(Point(std::stoi(lineCells[mColumnHeaders["SpriteX"]]),
                                                                                   std::stoi(lineCells[mColumnHeaders["SpriteY"]])),
                                                                             std::stoi(lineCells[mColumnHeaders["SpriteHeight"]]),
                                                                             std::stoi(lineCells[mColumnHeaders["SpriteWidth"]]))));
     }
-    std::getchar(); // Debug
+    std::cout << "Components: " << mComponents.size() << std::endl;
+    // std::getchar(); // Debug
 
     // Section bitmap into all its components
     // Add all the sectioned bitmap components to member map
@@ -69,10 +80,13 @@ ComponentLoader::~ComponentLoader()
 {
 }
 
-/*Bitmap &ComponentLoader::GetComponent(std::string aName)
+Bitmap &ComponentLoader::GetComponent(std::string aName)
 {
-    // Simple for now
-    return mComponents[aName];
-}*/
+    try {
+        return mComponents.at(aName);
+    } catch (const std::out_of_range &e) {
+        throw std::out_of_range(std::string("Component not found") + ": " + e.what());
+    }
+}
 
 } // namespace rsp::graphics
