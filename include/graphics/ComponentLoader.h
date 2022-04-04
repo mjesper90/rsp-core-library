@@ -16,19 +16,30 @@
 
 namespace rsp::graphics
 {
+class Component
+{
+  public:
+    Component(Point aPlacement, Bitmap aBitmap)
+        : mPlacement(aPlacement), mBitmap(aBitmap) {}
+    ~Component() {}
+
+    Point mPlacement;
+    Bitmap mBitmap;
+};
+
 class ComponentLoader
 {
   public:
     ComponentLoader(std::string aBitmapSource, std::string aSectioningInfo);
     ~ComponentLoader();
 
-    Bitmap &GetComponent(std::string aName);
+    Component &GetComponent(std::string aName);
+    std::unordered_map<std::string, Component> mComponents{}; // protected
 
   protected:
     std::string mLine = "";
     std::string mCell = "";
 
-    std::unordered_map<std::string, Bitmap> mComponents{};
     std::map<std::string, unsigned int> mColumnHeaders{};
 };
 

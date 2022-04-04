@@ -35,12 +35,6 @@ ComponentLoader::ComponentLoader(std::string aBitmapSource, std::string aSection
         columnCounter++;
     }
 
-    // std::cout << "Number of columns detected" << mColumnHeaders.size() << std::endl;
-    // for (const auto column : mColumnHeaders) {
-    //     std::cout << column << std::endl;
-    // }
-    // std::getchar();
-
     std::vector<std::string> lineCells;
     while (sectionFile.peek() != EOF) {
         lineCells.clear();
@@ -50,10 +44,6 @@ ComponentLoader::ComponentLoader(std::string aBitmapSource, std::string aSection
         while (std::getline(lineStream, mCell, ',')) {
             lineCells.push_back(mCell);
         }
-        // Debug
-        /*for (const auto aCell : lineCells) {
-            std::cout << aCell << std::endl;
-        }*/
         /*
         std::cout << "Inserting Component: " << std::endl;
         std::cout << "UnitName: " << lineCells[mColumnHeaders["UnitName"]] << std::endl;
@@ -62,25 +52,25 @@ ComponentLoader::ComponentLoader(std::string aBitmapSource, std::string aSection
         std::cout << "SpriteHeight: " << lineCells[mColumnHeaders["SpriteHeight"]] << std::endl;
         std::cout << "SpriteWidth: " << lineCells[mColumnHeaders["SpriteWidth"]] << std::endl;
         */
+        Bitmap section(source.GetSection(Point(std::stoi(lineCells[mColumnHeaders["SpriteX"]]),
+                                               std::stoi(lineCells[mColumnHeaders["SpriteY"]])),
+                                         std::stoi(lineCells[mColumnHeaders["SpriteHeight"]]),
+                                         std::stoi(lineCells[mColumnHeaders["SpriteWidth"]])));
 
-        mComponents.insert(std::pair<std::string, Bitmap>(lineCells[mColumnHeaders["UnitName"]],
-                                                          source.GetSection(Point(std::stoi(lineCells[mColumnHeaders["SpriteX"]]),
-                                                                                  std::stoi(lineCells[mColumnHeaders["SpriteY"]])),
-                                                                            std::stoi(lineCells[mColumnHeaders["SpriteHeight"]]),
-                                                                            std::stoi(lineCells[mColumnHeaders["SpriteWidth"]]))));
+        Component comp(Point(std::stoi(lineCells[mColumnHeaders["GuiX"]]),
+                             std::stoi(lineCells[mColumnHeaders["GuiY"]])),
+                       section);
+
+        mComponents.insert(std::pair<std::string, Component>(lineCells[mColumnHeaders["UnitName"]], comp));
     }
     std::cout << "Components: " << mComponents.size() << std::endl;
-    // std::getchar(); // Debug
-
-    // Section bitmap into all its components
-    // Add all the sectioned bitmap components to member map
 }
 
 ComponentLoader::~ComponentLoader()
 {
 }
 
-Bitmap &ComponentLoader::GetComponent(std::string aName)
+Component &ComponentLoader::GetComponent(std::string aName)
 {
     try {
         return mComponents.at(aName);

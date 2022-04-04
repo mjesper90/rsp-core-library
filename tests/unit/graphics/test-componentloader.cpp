@@ -17,6 +17,7 @@ using namespace ::rsp::graphics;
 
 TEST_CASE("Component Loader Test")
 {
+    auto begin = std::chrono::high_resolution_clock::now();
     ComponentLoader loader("testFiles/Test keybord - Sprite sheet.bmp",
                            "testFiles/GuiItemsPlacement.csv");
 
@@ -24,7 +25,15 @@ TEST_CASE("Component Loader Test")
     Framebuffer fb(p.empty() ? nullptr : p.string().c_str());
 
     // Can we draw the bitmaps?
-    fb.DrawImage(Point(100, 100), loader.GetComponent("Keyboard_number"));
+    for (auto comp : loader.mComponents) {
+        fb.DrawImage(comp.second.mPlacement, comp.second.mBitmap);
+    }
+    auto end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
+    std::cout << "Duration: " << duration << std::endl;
+
+    // Component comp = loader.GetComponent("Keyboard_number");
+    // fb.DrawImage(comp.mPlacement, comp.mBitmap);
     fb.SwapBuffer(BufferedCanvas::SwapOperations::Clear);
     std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 }
