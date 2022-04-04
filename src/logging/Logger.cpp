@@ -9,17 +9,16 @@
  */
 
 #include <iostream>
-#include <sstream>
-#include <map>
 #include <logging/Logger.h>
+#include <map>
+#include <sstream>
 #include <thread>
 #include <utils/CoreException.h>
 
-namespace rsp::logging {
+namespace rsp::logging
+{
 
-
-LoggerInterface* LoggerInterface::mpDefaultInstance = nullptr;
-
+LoggerInterface *LoggerInterface::mpDefaultInstance = nullptr;
 
 LoggerInterface::Handle_t LoggerInterface::AddLogWriter(std::shared_ptr<LogWriterInterface> aWriter)
 {
@@ -33,7 +32,7 @@ void LoggerInterface::RemoveLogWriter(Handle_t aHandle)
         return;
     }
 
-    auto it = std::find_if(mWriters.begin(), mWriters.end(), [&](std::shared_ptr<LogWriterInterface> const& arWriter) {
+    auto it = std::find_if(mWriters.begin(), mWriters.end(), [&](std::shared_ptr<LogWriterInterface> const &arWriter) {
         return aHandle == reinterpret_cast<Handle_t>(arWriter.get());
     });
     if (it != mWriters.end()) {
@@ -56,14 +55,13 @@ void LoggerInterface::write(const LogStreamInterface *apStream, const std::strin
     }
 }
 
-
 LogStreamInterface::LogStreamInterface(LoggerInterface *apOwner, LogLevel aLevel)
     : mpOwner(apOwner),
       mLevel(aLevel)
 {
 }
 
-LogStreamInterface& LogStreamInterface::operator=(const LogStreamInterface &&arOther)
+LogStreamInterface &LogStreamInterface::operator=(const LogStreamInterface &&arOther)
 {
     if (&arOther != this) {
         mpOwner = arOther.mpOwner;
@@ -77,7 +75,7 @@ void LogStreamInterface::ownerWrite(const std::string &arMsg)
     mpOwner->write(this, arMsg);
 }
 
-LoggerInterface& LoggerInterface::GetDefault()
+LoggerInterface &LoggerInterface::GetDefault()
 {
     if (!mpDefaultInstance) {
         THROW_WITH_BACKTRACE1(rsp::utils::NotSetException, "Logger instance not set.");
@@ -102,7 +100,7 @@ LogStream::LogStream(LogStream &&arFrom)
     mBuffer = std::move(arFrom.mBuffer);
 }
 
-LogStream& LogStream::operator=(LogStream &&arOther)
+LogStream &LogStream::operator=(LogStream &&arOther)
 {
     if (&arOther != this) {
         mpOwner = arOther.mpOwner;
@@ -125,7 +123,6 @@ void LogStream::Flush()
     }
 }
 
-
 OutStreamBuf::OutStreamBuf(LoggerInterface *apOwner, LogLevel aLevel)
     : std::streambuf(),
       LogStreamInterface(apOwner, aLevel)
@@ -136,8 +133,7 @@ int OutStreamBuf::overflow(int c)
 {
     if (c != EOF) {
         mBuffer += static_cast<char>(c);
-    }
-    else {
+    } else {
         mBuffer += '#';
         sync();
     }
@@ -151,7 +147,7 @@ int OutStreamBuf::sync()
         DLOG("OutStreamBuf mutex was not locked!!! " << std::this_thread::get_id());
     }
 
-    int l = mBuffer.length();
+    unsigned int l = mBuffer.length();
     if (l > 0) {
         DLOG("Message: (" << l << ") " << mBuffer);
         ownerWrite(mBuffer);
@@ -162,7 +158,7 @@ int OutStreamBuf::sync()
     return 0;
 }
 
-std::ostream& operator <<(std::ostream &arOs, LogLevel aLevel)
+std::ostream &operator<<(std::ostream &arOs, LogLevel aLevel)
 {
     OutStreamBuf *stream = static_cast<OutStreamBuf *>(arOs.rdbuf());
 
@@ -172,7 +168,6 @@ std::ostream& operator <<(std::ostream &arOs, LogLevel aLevel)
 
     return arOs;
 }
-
 
 Logger::Logger(bool aCaptureClog)
     : mpClogBackup(nullptr)
@@ -229,5 +224,4 @@ LogStream Logger::Debug()
     return LogStream(this, LogLevel::Debug);
 }
 
-} /* namespace rsp */
-
+} // namespace rsp::logging

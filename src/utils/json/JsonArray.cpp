@@ -8,14 +8,14 @@
  * \author      Steffen Brummer
  */
 
-#include <utils/json/JsonArray.h>
 #include <logging/Logger.h>
+#include <utils/json/JsonArray.h>
 
-namespace rsp::utils::json {
+namespace rsp::utils::json
+{
 
 // # define JLOG(a) DLOG(a)
 #define JLOG(a)
-
 
 JsonArray::JsonArray()
 {
@@ -24,16 +24,16 @@ JsonArray::JsonArray()
 }
 
 JsonArray::JsonArray(const JsonArray &arOther)
-    : JsonValue(static_cast<const JsonValue&>(arOther))
+    : JsonValue(static_cast<const JsonValue &>(arOther))
 {
     JLOG("JsonArray copy constructor");
-    for(JsonValue* el : arOther.mData) {
+    for (JsonValue *el : arOther.mData) {
         mData.push_back(el->clone());
     }
 }
 
 JsonArray::JsonArray(JsonArray &&arOther)
-    : JsonValue(static_cast<JsonValue&>(arOther)),
+    : JsonValue(static_cast<JsonValue &>(arOther)),
       mData(arOther.mData)
 {
     JLOG("JsonArray move constructor");
@@ -47,20 +47,20 @@ JsonArray::~JsonArray()
     }
 }
 
-JsonArray& JsonArray::operator=(const JsonArray &arOther)
+JsonArray &JsonArray::operator=(const JsonArray &arOther)
 {
     if (&arOther != this) {
         JLOG("JsonArray copy assignment");
-        JsonValue::operator=(static_cast<const JsonValue&>(arOther));
+        JsonValue::operator=(static_cast<const JsonValue &>(arOther));
         mData.clear();
-        for(JsonValue* el : arOther.mData) {
+        for (JsonValue *el : arOther.mData) {
             mData.push_back(el->clone());
         }
     }
     return *this;
 }
 
-JsonValue* JsonArray::clone() const
+JsonValue *JsonArray::clone() const
 {
     JLOG("JsonArray::clone");
     auto result = new JsonArray();
@@ -68,11 +68,11 @@ JsonValue* JsonArray::clone() const
     return result;
 }
 
-JsonArray& JsonArray::operator=(JsonArray &&arOther)
+JsonArray &JsonArray::operator=(JsonArray &&arOther)
 {
     if (&arOther != this) {
         JLOG("JsonArray move assignment");
-        JsonValue::operator=(static_cast<JsonValue&>(arOther));
+        JsonValue::operator=(static_cast<JsonValue &>(arOther));
         mData = std::move(arOther.mData);
         arOther.mData.clear();
     }
@@ -84,12 +84,12 @@ std::size_t JsonArray::GetCount() const
     return mData.size();
 }
 
-JsonValue& JsonArray::operator [](unsigned int aIndex)
+JsonValue &JsonArray::operator[](unsigned int aIndex)
 {
     return *(mData[aIndex]);
 }
 
-JsonArray& JsonArray::Add(JsonValue* apValue)
+JsonArray &JsonArray::Add(JsonValue *apValue)
 {
     if (apValue == nullptr) {
         return *this;
@@ -100,7 +100,7 @@ JsonArray& JsonArray::Add(JsonValue* apValue)
     return *this;
 }
 
-JsonArray& JsonArray::Remove(int aIndex)
+JsonArray &JsonArray::Remove(int aIndex)
 {
     mData.erase(mData.begin() + aIndex);
     return *this;
@@ -123,18 +123,17 @@ void JsonArray::toStringStream(std::stringstream &arResult, PrintFormat &arPf, u
 
     arResult << "[" << arPf.nl;
 
-    int rest = mData.size();
-    for (JsonValue* el : mData) {
-       arResult << in;
-       el->toStringStream(arResult, arPf, aLevel+1, aForceToUCS2);
-       if (--rest == 0) {
-           c = "";
-       }
-       arResult << c << arPf.nl;
+    unsigned int rest = mData.size();
+    for (JsonValue *el : mData) {
+        arResult << in;
+        el->toStringStream(arResult, arPf, aLevel + 1, aForceToUCS2);
+        if (--rest == 0) {
+            c = "";
+        }
+        arResult << c << arPf.nl;
     }
     std::string in1(static_cast<std::string::size_type>(arPf.indent) * aLevel, ' ');
     arResult << in1 << "]";
 }
 
-} // rsp::utils::json
-
+} // namespace rsp::utils::json

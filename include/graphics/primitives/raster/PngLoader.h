@@ -10,28 +10,25 @@
 #ifndef PNGLOADER_H
 #define PNGLOADER_H
 
-#include <graphics/primitives/raster/ImgLoader.h>
 #include <cstring>
+#include <graphics/primitives/raster/ImgLoader.h>
 #include <iostream>
 #include <vector>
 
 namespace rsp::graphics
 {
 
-class PngLoader: public ImgLoader
+class PngLoader : public ImgLoader
 {
-public:
+  public:
     std::vector<uint32_t> LoadImg(const std::string &aImgName);
 
-protected:
-    struct PLTE
-    {
-    } __attribute__((packed)); //To stop alignment;
-    struct IEND
-    {
-    } __attribute__((packed)); //To stop alignment;
-    struct IHDR
-    {
+  protected:
+    struct PLTE {
+    } __attribute__((packed)); // To stop alignment;
+    struct IEND {
+    } __attribute__((packed)); // To stop alignment;
+    struct IHDR {
         uint32_t width;
         uint32_t height;
         uint8_t bitDepth;
@@ -39,28 +36,26 @@ protected:
         uint8_t compressionMethod;
         uint8_t filterMethod;
         uint8_t interlaceMethod;
-    } __attribute__((packed)); //To stop alignment
-    struct PNGChunk
-    {
+    } __attribute__((packed)); // To stop alignment
+    struct PNGChunk {
         uint32_t length = 0;
         char type[4];
-        union
-        {
-            uint8_t *data = nullptr;
+        union {
+            uint32_t *data = nullptr;
             struct IHDR *ihdr;
             struct PLTE *plte;
             struct IEND *iend;
         };
         // A CRC value of type uint32_t is always appended to the chunk
-    } __attribute__((packed)); //To stop alignment
+    } __attribute__((packed)); // To stop alignment
 
-    uint8_t mPngSignature[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
+    uint8_t mPngSignature[8] = {137, 80, 78, 71, 13, 10, 26, 10};
 
     bool CheckSignature(const uint8_t *aSig, const uint8_t &aSize);
     void ReadHeader(FILE *file);
     void ReadData(FILE *file);
 };
 
-}
+} // namespace rsp::graphics
 
-#endif //PNGLOADER_H
+#endif // PNGLOADER_H

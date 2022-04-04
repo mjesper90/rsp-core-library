@@ -7,27 +7,28 @@
  * \license     Mozilla Public License 2.0
  * \author      Steffen Brummer
  */
-#include <application/Console.h>
-#include <posix/TerminalIO.h>
-#include <cstdio>
-#include <string>
-#include <iostream>
-#include <cstring>
 #include <algorithm>
+#include <application/Console.h>
+#include <cstdio>
+#include <cstring>
+#include <iostream>
 #include <ostream>
+#include <posix/TerminalIO.h>
+#include <string>
 #include <utils/AnsiEscapeCodes.h>
 #include <utils/StrUtils.h>
 
 using namespace rsp::utils;
 using namespace rsp::application;
 
-namespace rsp::posix {
+namespace rsp::posix
+{
 
 #ifdef __linux__
 
 TerminalIO::TerminalIO()
 {
-    tcgetattr(0, &mOldTermios);             // grab old terminal i/o settings
+    tcgetattr(0, &mOldTermios); // grab old terminal i/o settings
 
     SetEcho(false);
 }
@@ -43,20 +44,19 @@ TerminalIO::~TerminalIO()
     tcsetattr(0, TCSANOW, &mOldTermios);
 }
 
-TerminalIO& TerminalIO::SetEcho(bool aEcho)
+TerminalIO &TerminalIO::SetEcho(bool aEcho)
 {
-    mCurrentTermios = mOldTermios;          // make new settings same as old settings
+    mCurrentTermios = mOldTermios; // make new settings same as old settings
 
-    mCurrentTermios.c_lflag &= static_cast<tcflag_t>(~ICANON);     // disable buffered i/o
+    mCurrentTermios.c_lflag &= static_cast<tcflag_t>(~ICANON); // disable buffered i/o
     if (aEcho) {
-        mCurrentTermios.c_lflag |= ECHO;    // set echo mode
-    }
-    else {
-        mCurrentTermios.c_lflag &= static_cast<tcflag_t>(~ECHO);   // set no echo mode
+        mCurrentTermios.c_lflag |= ECHO; // set echo mode
+    } else {
+        mCurrentTermios.c_lflag &= static_cast<tcflag_t>(~ECHO); // set no echo mode
     }
 
     mCurrentTermios.c_cc[VTIME] = 1; // is non-zero: Wait up to 20ms for a character
-    mCurrentTermios.c_cc[VMIN]  = 0; // is zero: Return after timeout if no character has been received
+    mCurrentTermios.c_cc[VMIN] = 0;  // is zero: Return after timeout if no character has been received
 
     tcsetattr(0, TCSANOW, &mCurrentTermios); // Use these new terminal i/o settings now
 
@@ -69,21 +69,18 @@ char TerminalIO::GetChar(EscapeCodes &arEscCode)
 
     do {
         c = std::getchar();
-    }
-    while (c == static_cast<char>(-1));
+    } while (c == static_cast<char>(-1));
 
     arEscCode = EscapeCodes::Character;
 
     if (c == 0x1b) {
         // Escape character
-        char ext[6] {0};
+        char ext[6]{0};
         ext[0] = c;
         ext[1] = std::getchar();
         if (ext[1] == 0) {
             return c; // The Esc key is not followed by any extended values
-        }
-        else
-        {
+        } else {
             ext[2] = std::getchar();
             if (ext[2] < 0x3F) {
                 ext[3] = std::getchar();
@@ -106,11 +103,9 @@ char TerminalIO::GetChar(EscapeCodes &arEscCode)
         if (mVerbose) {
             Console::Debug() << "ExcCode: " << static_cast<int>(arEscCode) << std::endl;
         }
-    }
-    else if (c == AnsiEscapeCodes::ec::Backspace) {
+    } else if (c == AnsiEscapeCodes::ec::Backspace) {
         arEscCode = EscapeCodes::Backspace;
-    }
-    else if (c == '\t') {
+    } else if (c == '\t') {
         // Tab character
         arEscCode = EscapeCodes::Tabulator;
     }
@@ -145,96 +140,94 @@ std::string TerminalIO::GetLine()
 
     Console::Info() << mPrompt << TextColor::Input;
 
-    while( (ch = GetChar(esc)) ) {
+    while ((ch = GetChar(esc))) {
 
         switch (esc) {
-            case EscapeCodes::Character:
-                if (ch != '\n') {
-                    line.insert(cursor++, &ch, 1);
-                    edit_mode = true;
-                }
-                break;
-
-            case EscapeCodes::Backspace:
-                if (cursor > 0) {
-                    line.erase(--cursor, 1);
-                }
-                break;
-
-            case EscapeCodes::Delete:
-                if (cursor < line.length()) {
-                    line.erase(cursor--, 1);
-                }
-                break;
-
-            case EscapeCodes::Home:
-                cursor = 0;
-                break;
-
-            case EscapeCodes::End:
-                cursor = line.length();
-                break;
-
-            case EscapeCodes::ArrowRight:
-                if (cursor < line.length()) {
-                    cursor++;
-                    std::cout << AnsiEscapeCodes::ec::cursor::Right << std::flush;
-                }
-                break;
-
-            case EscapeCodes::ArrowLeft:
-                if (cursor > 0) {
-                    cursor--;
-                    std::cout << AnsiEscapeCodes::ec::cursor::Left << std::flush;
-                }
-                break;
-
-            case EscapeCodes::ArrowDown:
-                if ((history_cursor+1) < mHistory.size()) {
-                    if (edit_mode) {
-                        if (history_cursor <= mHistory.size()) {
-                            mHistory[history_cursor] = line;
-                        }
-                        else {
-                            mHistory.push_back(line);
-                        }
-                    }
-                    line = mHistory.at(++history_cursor);
-                    cursor = line.length();
-                    edit_mode = false;
-                }
-                break;
-
-            case EscapeCodes::ArrowUp:
-                if (history_cursor > 0) {
-                    if (edit_mode) {
-                        if (history_cursor <= mHistory.size()) {
-                            mHistory[history_cursor] = line;
-                        }
-                        else {
-                            mHistory.push_back(line);
-                        }
-                    }
-                    line = mHistory.at(--history_cursor);
-                    cursor = line.length();
-                    edit_mode = false;
-                }
-                break;
-
-            case EscapeCodes::Tabulator:
-                handleTabulator(tab_count, line, cursor);
-                break;
-
-            case EscapeCodes::Esc:
-                line.clear();
-                cursor = 0;
+        case EscapeCodes::Character:
+            if (ch != '\n') {
+                line.insert(cursor++, &ch, 1);
                 edit_mode = true;
+            }
+            break;
 
-                break;
+        case EscapeCodes::Backspace:
+            if (cursor > 0) {
+                line.erase(--cursor, 1);
+            }
+            break;
 
-            case EscapeCodes::Unknown:
-            default:
-                break;
+        case EscapeCodes::Delete:
+            if (cursor < line.length()) {
+                line.erase(cursor--, 1);
+            }
+            break;
+
+        case EscapeCodes::Home:
+            cursor = 0;
+            break;
+
+        case EscapeCodes::End:
+            cursor = line.length();
+            break;
+
+        case EscapeCodes::ArrowRight:
+            if (cursor < line.length()) {
+                cursor++;
+                std::cout << AnsiEscapeCodes::ec::cursor::Right << std::flush;
+            }
+            break;
+
+        case EscapeCodes::ArrowLeft:
+            if (cursor > 0) {
+                cursor--;
+                std::cout << AnsiEscapeCodes::ec::cursor::Left << std::flush;
+            }
+            break;
+
+        case EscapeCodes::ArrowDown:
+            if ((history_cursor + 1) < mHistory.size()) {
+                if (edit_mode) {
+                    if (history_cursor <= mHistory.size()) {
+                        mHistory[history_cursor] = line;
+                    } else {
+                        mHistory.push_back(line);
+                    }
+                }
+                line = mHistory.at(++history_cursor);
+                cursor = line.length();
+                edit_mode = false;
+            }
+            break;
+
+        case EscapeCodes::ArrowUp:
+            if (history_cursor > 0) {
+                if (edit_mode) {
+                    if (history_cursor <= mHistory.size()) {
+                        mHistory[history_cursor] = line;
+                    } else {
+                        mHistory.push_back(line);
+                    }
+                }
+                line = mHistory.at(--history_cursor);
+                cursor = line.length();
+                edit_mode = false;
+            }
+            break;
+
+        case EscapeCodes::Tabulator:
+            handleTabulator(tab_count, line, cursor);
+            break;
+
+        case EscapeCodes::Esc:
+            line.clear();
+            cursor = 0;
+            edit_mode = true;
+
+            break;
+
+        case EscapeCodes::Unknown:
+        default:
+            break;
         }
 
         if (esc != EscapeCodes::Tabulator) {
@@ -247,7 +240,7 @@ std::string TerminalIO::GetLine()
             std::cout << ch;
             break;
         }
-        std::cout << AnsiEscapeCodes::ec::cursor::SetPosition(cursor + 1 + mPrompt.length()) << std::flush; // Move cursor to correct position
+        std::cout << AnsiEscapeCodes::ec::cursor::SetPosition(static_cast<int>(cursor + 1 + mPrompt.length())) << std::flush; // Move cursor to correct position
     }
 
     if (mVerbose) {
@@ -264,8 +257,7 @@ std::string TerminalIO::GetLine()
             if (mHistory.back().compare(line)) {
                 mHistory.push_back(line);
             }
-        }
-        else {
+        } else {
             mHistory.push_back(line);
         }
     }
@@ -281,7 +273,7 @@ void TerminalIO::handleTabulator(int &arTabCount, std::string &arLine, unsigned 
         arTabCount = 0;
 
         if (matches.empty() ||
-           (matches.size() == 1 && matches[0] == arLine)) {
+            (matches.size() == 1 && matches[0] == arLine)) {
             return;
         }
 
@@ -314,8 +306,7 @@ void TerminalIO::handleTabulator(int &arTabCount, std::string &arLine, unsigned 
         arLine = common;
         if (matches[0] == arLine && matches.size() > 1) {
             arLine += ' ';
-        }
-        else {
+        } else {
             arTabCount = 0;
         }
         arCursor = arLine.length();
@@ -329,15 +320,15 @@ TerminalIO::EscapeCodes TerminalIO::escString2Code(const char *apEscStr)
         EscapeCodes ec;
     };
 
-    const ansi2io_t map[] {
-        { AnsiEscapeCodes::ec::arrow::Up, EscapeCodes::ArrowUp },
-        { AnsiEscapeCodes::ec::arrow::Down, EscapeCodes::ArrowDown },
-        { AnsiEscapeCodes::ec::arrow::Right, EscapeCodes::ArrowRight },
-        { AnsiEscapeCodes::ec::arrow::Left, EscapeCodes::ArrowLeft },
-        { AnsiEscapeCodes::ec::Delete, EscapeCodes::Delete },
-        { AnsiEscapeCodes::ec::Home, EscapeCodes::Home },
-        { AnsiEscapeCodes::ec::End, EscapeCodes::End },
-        { AnsiEscapeCodes::ec::Esc, EscapeCodes::Esc },
+    const ansi2io_t map[]{
+        {AnsiEscapeCodes::ec::arrow::Up, EscapeCodes::ArrowUp},
+        {AnsiEscapeCodes::ec::arrow::Down, EscapeCodes::ArrowDown},
+        {AnsiEscapeCodes::ec::arrow::Right, EscapeCodes::ArrowRight},
+        {AnsiEscapeCodes::ec::arrow::Left, EscapeCodes::ArrowLeft},
+        {AnsiEscapeCodes::ec::Delete, EscapeCodes::Delete},
+        {AnsiEscapeCodes::ec::Home, EscapeCodes::Home},
+        {AnsiEscapeCodes::ec::End, EscapeCodes::End},
+        {AnsiEscapeCodes::ec::Esc, EscapeCodes::Esc},
     };
 
     for (auto &a : map) {
@@ -354,8 +345,7 @@ char TerminalIO::WaitForAnyKey()
     char c;
     do {
         c = std::getchar(); // getchar behavior changed by TerminalIO: timeout of 20ms on key wait.
-    }
-    while (c == static_cast<char>(-1));
+    } while (c == static_cast<char>(-1));
 
     return c;
 }
@@ -363,4 +353,4 @@ char TerminalIO::WaitForAnyKey()
 #else /* __linux__ */
 #warning "This is a POSIX file, only cleared for building for Linux"
 #endif /* __linux__ */
-} /* namespace hwtest */
+} // namespace rsp::posix

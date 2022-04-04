@@ -10,16 +10,17 @@
 
 #include "doctest.h"
 #include <iostream>
-#include <utils/StrUtils.h>
 #include <utils/InRange.h>
+#include <utils/StrUtils.h>
 #include <utils/json/Json.h>
 
 using namespace rsp::utils;
 using namespace rsp::utils::json;
 
-TEST_CASE("Json") {
+TEST_CASE("Json")
+{
 
-    JsonString json_object{ R"(
+    JsonString json_object{R"(
 {
     "NullValue": null,
     "BooleanValue": true,
@@ -37,15 +38,17 @@ TEST_CASE("Json") {
         "Empty": null
     }
 }    
-)" };
+)"};
 
-    SUBCASE("Create Float") {
+    SUBCASE("Create Float")
+    {
         JsonValue v1(1.4f);
         CHECK(v1.GetJsonType() == JsonTypes::Number);
         CHECK(IsEqual(1.4f, static_cast<float>(v1), 0.000001f));
     }
 
-    SUBCASE("Create String") {
+    SUBCASE("Create String")
+    {
         JsonValue v2("My World");
         CHECK(v2.GetType() == JsonValue::Types::String);
         CHECK("My World" == v2.AsString());
@@ -53,26 +56,28 @@ TEST_CASE("Json") {
         CHECK("\"My World\"" == v2.Encode());
     }
 
-    SUBCASE("Create Unicode String") {
-        JsonValue* v3 = JsonString("\"My \\u0057orld\"").GetValue();
+    SUBCASE("Create Unicode String")
+    {
+        JsonValue *v3 = JsonString("\"My \\u0057orld\"").GetValue();
         CHECK(v3->GetType() == JsonValue::Types::String);
         CHECK("My World" == v3->AsString());
         delete v3;
 
         v3 = JsonString("\"Euro sign: \\u20AC\"").GetValue();
-//            CHECK("Euro sign: €" == "Euro sign: \\u20AC");
+        //            CHECK("Euro sign: €" == "Euro sign: \\u20AC");
         CHECK(v3->GetType() == JsonValue::Types::String);
         CHECK("Euro sign: €" == v3->AsString());
     }
 
-    SUBCASE("Ignore Whitespace") {
+    SUBCASE("Ignore Whitespace")
+    {
         std::string ws = R"({"whitespace":  
 
 	
 null }
 )";
         auto p = JsonString(ws).GetValue();
-        JsonValue& v4 = *p;
+        JsonValue &v4 = *p;
 
         CHECK(v4.GetJsonType() == JsonTypes::Object);
         CHECK(v4.AsObject().GetCount() == 1);
@@ -81,13 +86,14 @@ null }
         delete p;
     }
 
-    SUBCASE("Decode Object") {
-        JsonValue& v = *JsonString(json_object).GetValue();
+    SUBCASE("Decode Object")
+    {
+        JsonValue &v = *JsonString(json_object).GetValue();
 
         CHECK(v.GetJsonType() == JsonTypes::Object);
         CHECK(v.AsObject().GetCount() == 7);
 
-        JsonObject& o = v.AsObject();
+        JsonObject &o = v.AsObject();
 
         CHECK(o.MemberExists("NullValue"));
         CHECK(o["NullValue"].IsNull());
@@ -108,12 +114,12 @@ null }
         CHECK(o["FloatValue"].IsNull() == false);
 
         CHECK(o.MemberExists("ArrayValue"));
-        JsonArray& a = o["ArrayValue"].AsArray();
+        JsonArray &a = o["ArrayValue"].AsArray();
         CHECK(a.GetCount() == 4);
         CHECK(a.IsNull() == false);
         CHECK(static_cast<int>(a[0u]) == 32);
         CHECK(a[1u].AsString() == "string");
-        CHECK(static_cast<bool>(a[2]));
+        CHECK(static_cast<bool>(a[2u]));
         CHECK(a[3u].IsNull());
 
         CHECK(o.MemberExists("ObjectMember"));
@@ -131,9 +137,10 @@ null }
         delete &v;
     }
 
-    SUBCASE("Encode Object") {
+    SUBCASE("Encode Object")
+    {
         std::string orig = json_object;
-        JsonValue& v = *JsonString(json_object).GetValue();
+        JsonValue &v = *JsonString(json_object).GetValue();
 
         CHECK(v.GetJsonType() == JsonTypes::Object);
         CHECK(v.AsObject().GetCount() == 7);
@@ -159,7 +166,8 @@ null }
         delete v1;
     }
 
-    SUBCASE("Validate") {
+    SUBCASE("Validate")
+    {
         CHECK_THROWS_AS(JsonString(R"(1.23456.7)").GetValue(), const EJsonNumberError &); // Bad number
         CHECK_THROWS_AS(JsonString(R"(BadString)").GetValue(), const EJsonParseError &);
         CHECK_THROWS_AS(JsonString(R"("Bad Character \k")").GetValue(), const EJsonFormatError &);
@@ -175,10 +183,11 @@ null }
         CHECK_THROWS_AS(JsonString(R"({ "BadObject": "Excessive Delimiter",})").GetValue(), const EJsonParseError &);
     }
 
-    SUBCASE("Copy") {
+    SUBCASE("Copy")
+    {
         std::string orig = json_object;
         StrUtils::Trim(orig);
-        JsonValue* p = JsonString(json_object).GetValue();
+        JsonValue *p = JsonString(json_object).GetValue();
 
         JsonObject dst;
         dst = p->AsObject();
@@ -202,10 +211,11 @@ null }
         CHECK(orig == dst2.Encode(true));
     }
 
-    SUBCASE("Move") {
+    SUBCASE("Move")
+    {
         std::string orig = json_object;
         StrUtils::Trim(orig);
-        JsonValue* p = JsonString(json_object).GetValue();
+        JsonValue *p = JsonString(json_object).GetValue();
         JsonObject dst = std::move(p->AsObject());
 
         CHECK(orig == dst.Encode(true));
@@ -216,7 +226,8 @@ null }
         CHECK(dst.IsNull());
     }
 
-    SUBCASE("Interface") {
+    SUBCASE("Interface")
+    {
         Json js;
         js.Decode(json_object);
 
@@ -251,4 +262,3 @@ null }
         CHECK(js.Empty());
     }
 }
-

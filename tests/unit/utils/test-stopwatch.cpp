@@ -9,28 +9,26 @@
  */
 
 #include <chrono>
-#include <thread>
 #include <doctest.h>
+#include <thread>
 #include <utils/InRange.h>
 #include <utils/StopWatch.h>
 
 using namespace rsp::utils;
 
-TEST_CASE("Stop Watch") {
+TEST_CASE("Stop Watch")
+{
 
     StopWatch sw;
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
-    CHECK(IsInRange(sw.Elapsed<std::chrono::milliseconds>(), 20l, 25l));
+    CHECK(IsInRange(sw.Elapsed<std::chrono::milliseconds>(), static_cast<int64_t>(20l), static_cast<int64_t>(25l)));
 
     sw.Reset();
 
-    CHECK(IsInRange(sw.Elapsed<std::chrono::milliseconds>(), 0l, 5l));
+    CHECK(IsInRange(sw.Elapsed<std::chrono::milliseconds>(), static_cast<int64_t>(0l), static_cast<int64_t>(5l)));
 
     std::this_thread::sleep_for(std::chrono::milliseconds(20));
 
-    CHECK(IsInRange(sw.Elapsed<std::chrono::milliseconds>(), 20l, 25l));
+    CHECK(IsInRange(sw.Elapsed<std::chrono::milliseconds>(), static_cast<int64_t>(20l), static_cast<int64_t>(25l)));
 }
-
-
-

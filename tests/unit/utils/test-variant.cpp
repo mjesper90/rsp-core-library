@@ -8,8 +8,8 @@
  * \author      Steffen Brummer
  */
 
-#include <sstream>
 #include <doctest.h>
+#include <sstream>
 #include <utils/InRange.h>
 #include <utils/Variant.h>
 
@@ -19,7 +19,8 @@ TEST_CASE("Variant")
 {
     Variant v;
 
-    SUBCASE("Types") {
+    SUBCASE("Types")
+    {
         CHECK(v.IsNull());
         CHECK(v.GetType() == Variant::Types::Null);
 
@@ -33,7 +34,7 @@ TEST_CASE("Variant")
         CHECK(v.GetType() == Variant::Types::Null);
         CHECK(!v.AsBool());
 
-        v= 42;
+        v = 42;
         CHECK(v.GetType() == Variant::Types::Int);
         CHECK(v.AsInt() == 42);
 
@@ -45,22 +46,25 @@ TEST_CASE("Variant")
         CHECK(IsInRange(f, 42.0f, 42.0f));
     }
 
-    SUBCASE("Streaming") {
+    SUBCASE("Streaming")
+    {
         std::stringstream ss;
-        v = 42ul;
+        v = static_cast<uint64_t>(42);
         ss << "Variant = " << v;
 
         CHECK(ss.str() == "Variant = uint64:42");
     }
 
-    SUBCASE("Assertions") {
+    SUBCASE("Assertions")
+    {
         v.Clear();
 
-        CHECK_THROWS_AS(v.AsInt(), const EConversionError&);
-        CHECK_THROWS_AS(v.AsDouble(), const EConversionError&);
+        CHECK_THROWS_AS(v.AsInt(), const EConversionError &);
+        CHECK_THROWS_AS(v.AsDouble(), const EConversionError &);
     }
 
-    SUBCASE("Copy") {
+    SUBCASE("Copy")
+    {
         v = 42;
         Variant b(v);
 
@@ -76,7 +80,8 @@ TEST_CASE("Variant")
         CHECK(b.AsInt() == 43);
     }
 
-    SUBCASE("Move") {
+    SUBCASE("Move")
+    {
         v = 42;
         Variant b(std::move(v));
 
@@ -89,8 +94,4 @@ TEST_CASE("Variant")
         CHECK(b.IsNull());
         CHECK(c.AsInt() == 42);
     }
-
 }
-
-
-
