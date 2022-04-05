@@ -13,14 +13,14 @@
 #include <chrono>
 #include <fcntl.h>
 #include <linux/kd.h>
+#include <logging/Logger.h>
+#include <stdint.h>
+#include <string>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <thread>
 #include <unistd.h>
-#include <stdint.h>
-#include <string>
 #include <vector>
-#include <logging/Logger.h>
 
 namespace rsp::graphics
 {
@@ -72,8 +72,7 @@ void Canvas::DrawLine(const Point &aA, const Point &aB, const Color &aColor)
             px += signumX;
             SetPixel(Point(px, py), aColor);
         }
-    }
-    else {
+    } else {
         for (int i = 0; i < absDeltaY; i++) {
             x += absDeltaX;
             if (x >= absDeltaY) {
@@ -94,8 +93,7 @@ void Canvas::DrawRectangle(const Rect &aRect, const Color &aColor, bool aFilled)
                 SetPixel(Point(x, y), aColor);
             }
         }
-    }
-    else {
+    } else {
         for (int i = aRect.mLeftTop.mX; i <= aRect.mRightBottom.mX; i++) {
             SetPixel(Point(i, aRect.mLeftTop.mY), aColor);     // top
             SetPixel(Point(i, aRect.mRightBottom.mY), aColor); // bottom
@@ -139,6 +137,5 @@ void Canvas::DrawText(const Text &arText, const Color &arColor)
         }
     }
 }
-
 
 } // namespace rsp::graphics

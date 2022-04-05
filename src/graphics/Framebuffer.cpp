@@ -74,7 +74,7 @@ Framebuffer::Framebuffer(const char *apDevPath)
         THROW_SYSTEM("Framebuffer shared memory mapping failed");
     }
 
-    mpBackBuffer = mpFrontBuffer + screensize;
+    mpBackBuffer = mpFrontBuffer + (screensize / 4);
 
     if (mVariableInfo.yoffset > 0) {
         uint32_t *tmp = mpFrontBuffer;
@@ -137,6 +137,7 @@ uint32_t Framebuffer::GetPixel(const Point &aPoint, const bool aFront) const
         return 0;
     }
     long location = (aPoint.mX + static_cast<int>(mVariableInfo.xoffset)) * static_cast<int>(mVariableInfo.bits_per_pixel / 8) + aPoint.mY * static_cast<int>(mFixedInfo.line_length);
+    location = location / static_cast<long int>(sizeof(uint32_t));
     if (aFront) {
         return *(reinterpret_cast<uint32_t *>(mpFrontBuffer + location));
     } else {
@@ -152,6 +153,7 @@ void Framebuffer::clear(Color aColor)
     for (y = 0; y < mVariableInfo.yres; y++) {
         for (x = 0; x < mVariableInfo.xres; x++) {
             unsigned long location = (x + mVariableInfo.xoffset) * (mVariableInfo.bits_per_pixel / 8) + y * mFixedInfo.line_length;
+            location = location / sizeof(uint32_t);
             *(reinterpret_cast<uint32_t *>(mpBackBuffer + location)) = aColor;
         }
     }
@@ -164,6 +166,7 @@ void Framebuffer::copy()
     for (y = 0; y < mVariableInfo.yres; y++) {
         for (x = 0; x < mVariableInfo.xres; x++) {
             unsigned long location = (x + mVariableInfo.xoffset) * (mVariableInfo.bits_per_pixel / 8) + y * mFixedInfo.line_length;
+            location = location / sizeof(uint32_t);
             *(reinterpret_cast<uint32_t *>(mpBackBuffer + location)) = *(reinterpret_cast<uint32_t *>(mpFrontBuffer + location));
         }
     }

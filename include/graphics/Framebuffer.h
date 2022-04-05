@@ -30,6 +30,7 @@ class Framebuffer : public BufferedCanvas
             return;
         }
         long location = (aPoint.mX + static_cast<int>(mVariableInfo.xoffset)) * (static_cast<int>(mVariableInfo.bits_per_pixel) / 8) + aPoint.mY * static_cast<int>(mFixedInfo.line_length);
+        location = location / static_cast<long int>(sizeof(uint32_t));
         *(reinterpret_cast<uint32_t *>(mpBackBuffer + location)) = aColor;
     }
 
