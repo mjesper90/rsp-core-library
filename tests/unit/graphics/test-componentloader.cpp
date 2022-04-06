@@ -25,7 +25,7 @@ TEST_CASE("Component Loader Test")
     Framebuffer fb(p.empty() ? nullptr : p.string().c_str());
 
     // Can we draw the bitmaps?
-    for (auto comp : loader.mComponents) {
+    for (auto comp : loader.GetAllComponents()) {
         fb.DrawImage(comp.second.mPlacement, comp.second.mBitmap);
     }
     auto end = std::chrono::high_resolution_clock::now();

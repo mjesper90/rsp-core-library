@@ -23,8 +23,8 @@ class Component
         : mPlacement(aPlacement), mBitmap(aBitmap) {}
     ~Component() {}
 
-    Point mPlacement;
-    Bitmap mBitmap;
+    Point mPlacement; //!< Location the component is to be placed on screen
+    Bitmap mBitmap;   //!< Bitmap containing the pixel values to be drawn
 };
 
 class ComponentLoader
@@ -33,13 +33,24 @@ class ComponentLoader
     ComponentLoader(std::string aBitmapSource, std::string aSectioningInfo);
     ~ComponentLoader();
 
+    /**
+     * \brief Gets the component with the given name
+     * \param aName String used as keys to retrieve component
+     * \return A reference to the component stored in member map
+     */
     Component &GetComponent(std::string aName);
-    std::unordered_map<std::string, Component> mComponents{}; // protected
+
+    /**
+     * \brief Gets all the component
+     * \return A reference to member map containing all components
+     */
+    std::unordered_map<std::string, Component> &GetAllComponents();
 
   protected:
     std::string mLine = "";
     std::string mCell = "";
 
+    std::unordered_map<std::string, Component> mComponents{}; // protected
     std::map<std::string, unsigned int> mColumnHeaders{};
 };
 

@@ -44,14 +44,6 @@ ComponentLoader::ComponentLoader(std::string aBitmapSource, std::string aSection
         while (std::getline(lineStream, mCell, ',')) {
             lineCells.push_back(mCell);
         }
-        /*
-        std::cout << "Inserting Component: " << std::endl;
-        std::cout << "UnitName: " << lineCells[mColumnHeaders["UnitName"]] << std::endl;
-        std::cout << "SpriteX: " << lineCells[mColumnHeaders["SpriteX"]] << std::endl;
-        std::cout << "SpriteY: " << lineCells[mColumnHeaders["SpriteY"]] << std::endl;
-        std::cout << "SpriteHeight: " << lineCells[mColumnHeaders["SpriteHeight"]] << std::endl;
-        std::cout << "SpriteWidth: " << lineCells[mColumnHeaders["SpriteWidth"]] << std::endl;
-        */
         Bitmap section(source.GetSection(Point(std::stoi(lineCells[mColumnHeaders["SpriteX"]]),
                                                std::stoi(lineCells[mColumnHeaders["SpriteY"]])),
                                          std::stoi(lineCells[mColumnHeaders["SpriteHeight"]]),
@@ -77,6 +69,11 @@ Component &ComponentLoader::GetComponent(std::string aName)
     } catch (const std::out_of_range &e) {
         throw std::out_of_range(std::string("Component not found") + ": " + e.what());
     }
+}
+
+std::unordered_map<std::string, Component> &ComponentLoader::GetAllComponents()
+{
+    return mComponents;
 }
 
 } // namespace rsp::graphics
